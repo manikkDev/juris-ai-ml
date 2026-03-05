@@ -33,15 +33,17 @@ class IndianHighCourtDownloader:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Configure boto3 for anonymous access to public bucket
+        # Configure boto3 for anonymous access to public bucket (ap-south-1 region)
         self.s3_client = boto3.client(
             's3',
+            region_name='ap-south-1',
             config=Config(signature_version=UNSIGNED)
         )
         
-        # Indian High Court dataset bucket (example - adjust based on actual bucket)
-        # Note: This is a placeholder - actual bucket name may vary
-        self.bucket_name = "indian-judiciary-data"
+        # Indian High Court Judgments - AWS Open Data Registry
+        # Bucket: s3://indian-high-court-judgments (ap-south-1)
+        # Docs: https://registry.opendata.aws/indian-high-court-judgments/
+        self.bucket_name = "indian-high-court-judgments"
         
         # Metadata tracking
         self.metadata_file = self.output_dir / "download_metadata.json"
@@ -84,11 +86,15 @@ class IndianHighCourtDownloader:
         try:
             logger.info(f"Listing files from bucket: {self.bucket_name}")
             
-            # Build prefix based on filters
+            # Build prefix based on actual dataset structure:
+            # data/pdf/year=YYYY/court=CODE/bench=BENCH/judgment.pdf
+            # metadata/json/year=YYYY/court=CODE/bench=BENCH/judgment.json
+            if not prefix:
+                prefix = "data/pdf/"
             if year:
-                prefix = f"{prefix}{year}/" if prefix else f"{year}/"
+                prefix = f"{prefix}year={year}/"
             if court:
-                prefix = f"{prefix}{court}/" if prefix else f"{court}/"
+                prefix = f"{prefix}court={court}/"
             
             # List objects
             paginator = self.s3_client.get_paginator('list_objects_v2')

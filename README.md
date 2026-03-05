@@ -670,13 +670,88 @@ index = create_faiss_index(embeddings, metadata)
 - **Scalability**: Handles 10,000+ cases efficiently
 - **Memory**: ~1.5MB per 1000 vectors (384-dim)
 
-## �📈 Future Enhancements
+## 🧠 Legal Reasoning LLM Layer
+
+### Overview
+
+AI-powered explanation engine using Google's Gemini API to generate human-readable explanations for case predictions.
+
+**Features:**
+- Natural language explanations for AI predictions
+- Key factor identification
+- Historical pattern analysis
+- Actionable recommendations for judges
+
+### Explain Prediction
+
+```bash
+POST /api/explain
+```
+
+**Request:**
+```json
+{
+  "case_data": {
+    "case_age_days": 420,
+    "adjournment_history": 3,
+    "hearings_count": 8,
+    "case_type": "civil",
+    "days_since_last_hearing": 40,
+    "judge_workload": 120
+  },
+  "prediction": {
+    "adjournmentRisk": 0.74,
+    "delayProbability": 0.61,
+    "resolutionEstimate": "4 months",
+    "confidence": 0.82
+  },
+  "similar_cases": []
+}
+```
+
+**Response:**
+```json
+{
+  "explanation": "This civil case shows a high risk of delay based on several critical factors...",
+  "key_factors": [
+    "High adjournment history (3 previous adjournments)",
+    "Extended case age (420 days)",
+    "Heavy judge workload (120 active cases)"
+  ],
+  "historical_patterns": "Similar civil cases with 3+ adjournments typically experience 60-70% longer resolution times...",
+  "recommendation": "Consider prioritizing this case for the next available hearing slot..."
+}
+```
+
+### Configuration
+
+Add to `.env`:
+```env
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+### Usage
+
+```python
+from app.llm.reasoning_engine import reasoning_engine
+
+result = reasoning_engine.generate_explanation(
+    case_data=case_data,
+    prediction=prediction,
+    similar_cases=similar_cases
+)
+```
+
+**Documentation:** See `docs/LLM_REASONING_LAYER.md` for detailed documentation.
+
+## 📈 Future Enhancements
 
 - [x] Integration with real Indian High Court datasets
 - [x] Automated data pipeline
 - [x] Dataset versioning and management
 - [x] Semantic search with sentence transformers
 - [x] Vector database with FAISS
+- [x] Legal reasoning LLM layer with Gemini API
 - [ ] Advanced NLP features (named entity recognition, summarization)
 - [ ] Deep learning models (PyTorch)
 - [ ] Model versioning and A/B testing

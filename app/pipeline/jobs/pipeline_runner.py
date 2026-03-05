@@ -201,7 +201,7 @@ class PipelineRunner:
         year: Optional[int] = None,
         court: Optional[str] = None,
         max_files: int = 100,
-        use_sample: bool = True,
+        use_sample: bool = False,
         use_ocr: bool = False,
         output_filename: str = "dataset.csv"
     ) -> Dict:
@@ -308,7 +308,7 @@ def main():
     parser.add_argument('--year', type=int, help='Filter by year')
     parser.add_argument('--court', type=str, help='Filter by court name')
     parser.add_argument('--max-files', type=int, default=10, help='Maximum files to process')
-    parser.add_argument('--use-sample', action='store_true', help='Use sample data')
+    parser.add_argument('--use-sample', action='store_true', help='Use sample data instead of real AWS data')
     parser.add_argument('--use-ocr', action='store_true', help='Use OCR for extraction')
     parser.add_argument('--output', type=str, default='dataset.csv', help='Output filename')
     

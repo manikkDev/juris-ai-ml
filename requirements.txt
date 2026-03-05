@@ -9,7 +9,7 @@ pydantic-settings==2.1.0
 python-multipart==0.0.6
 python-dotenv==1.0.0
 sentence-transformers==2.3.1
-torch==2.1.2
+torch==2.2.0
 matplotlib==3.8.2
 seaborn==0.13.1
 
@@ -26,5 +26,8 @@ regex==2023.12.25
 
 # Semantic Search Dependencies
 sentence-transformers==2.3.1
-faiss-cpu==1.7.4
+faiss-cpu==1.8.0
 transformers==4.36.2
+
+# LLM Dependencies
+google-generativeai==0.3.2

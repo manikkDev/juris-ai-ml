@@ -13,8 +13,10 @@ from app.schemas.prediction_schema import (
     TrainingRequest,
     TrainingResponse
 )
+from app.schemas.explanation_schema import ExplanationRequest, ExplanationResponse
 from app.services.prediction_service import prediction_service
 from app.training.train_model import CasePredictor
+from app.llm.reasoning_engine import reasoning_engine
 from app.utils.logger import logger
 
 router = APIRouter()
@@ -187,3 +189,48 @@ async def reload_model():
     except Exception as e:
         logger.error(f"Error reloading model: {str(e)}")
         raise HTTPException(status_code=500, detail="Error reloading model")
+
+
+@router.post("/explain", response_model=ExplanationResponse)
+async def explain_prediction(request: ExplanationRequest):
+    """
+    Generate human-readable explanation for AI prediction using Gemini LLM
+    
+    This endpoint uses the Gemini API to generate natural language explanations
+    that help judges understand why the model predicts case delays or adjournment risks.
+    
+    Args:
+        request: Explanation request containing case data, prediction, and similar cases
+    
+    Returns:
+        Structured explanation with key factors, historical patterns, and recommendations
+    """
+    try:
+        if not reasoning_engine.is_available():
+            raise HTTPException(
+                status_code=503,
+                detail="Reasoning engine not available. Please configure GEMINI_API_KEY environment variable."
+            )
+        
+        logger.info("Generating explanation for case prediction")
+        
+        explanation_result = reasoning_engine.generate_explanation(
+            case_data=request.case_data,
+            prediction=request.prediction,
+            similar_cases=request.similar_cases
+        )
+        
+        return ExplanationResponse(
+            explanation=explanation_result.get("explanation", ""),
+            key_factors=explanation_result.get("key_factors", []),
+            historical_patterns=explanation_result.get("historical_patterns", ""),
+            recommendation=explanation_result.get("recommendation", "")
+        )
+    
+    except ValueError as e:
+        logger.error(f"Explanation generation error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
+    
+    except Exception as e:
+        logger.error(f"Unexpected error during explanation generation: {str(e)}")
+        raise HTTPException(status_code=500, detail="Internal server error during explanation generation")
