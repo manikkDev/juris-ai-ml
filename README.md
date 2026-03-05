@@ -400,16 +400,121 @@ uvicorn main:app --reload --port 8000
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 
-## 📈 Future Enhancements
+## � Data Pipeline
 
-- [ ] Integration with real Indian High Court datasets
+### Overview
+
+Complete data ingestion and preprocessing pipeline for Indian High Court judgments:
+
+1. **Download** - Fetch PDFs from AWS Open Data registry
+2. **Extract** - Extract text from PDFs (with OCR fallback)
+3. **Parse** - Extract case metadata and hearing events
+4. **Generate** - Create ML features from parsed data
+5. **Build** - Construct structured training dataset
+6. **Store** - Version and manage datasets
+7. **Retrain** - Automatically trigger model retraining
+
+### Pipeline Components
+
+#### AWS Downloader
+```python
+from app.pipeline.download.aws_downloader import IndianHighCourtDownloader
+
+downloader = IndianHighCourtDownloader()
+files = downloader.download_batch(year=2023, max_files=100)
+```
+
+#### Text Extraction
+```python
+from app.pipeline.extract.pdf_text_extractor import PDFTextExtractor
+
+extractor = PDFTextExtractor()
+result = extractor.extract_and_save(pdf_path)
+```
+
+#### Metadata Parsing
+```python
+from app.pipeline.parsers.metadata_parser import MetadataParser
+
+parser = MetadataParser()
+metadata = parser.parse_complete_metadata(text)
+```
+
+#### Feature Generation
+```python
+from app.pipeline.dataset.feature_generator import FeatureGenerator
+
+generator = FeatureGenerator()
+features = generator.generate_features(metadata)
+```
+
+### Running the Pipeline
+
+**Complete Pipeline:**
+```bash
+python app/pipeline/jobs/pipeline_runner.py --use-sample --max-files 10
+```
+
+**With Options:**
+```bash
+python app/pipeline/jobs/pipeline_runner.py \
+  --year 2023 \
+  --court "Delhi" \
+  --max-files 50 \
+  --use-ocr \
+  --output dataset_2023.csv
+```
+
+**Auto-Retrain:**
+```bash
+python app/pipeline/jobs/retrain_trigger.py --force
+```
+
+### Pipeline Features
+
+✅ **Parallel Processing** - Process multiple PDFs concurrently
+✅ **Resume Support** - Resume interrupted pipeline runs
+✅ **OCR Fallback** - Automatic OCR for scanned documents
+✅ **Data Versioning** - Track dataset versions
+✅ **Quality Validation** - Validate extracted data quality
+✅ **Progress Tracking** - Real-time progress bars
+✅ **Structured Logging** - Comprehensive logging at each stage
+
+### Extracted Features
+
+The pipeline generates these ML features:
+
+- `case_age_days` - Age of case in days
+- `adjournment_history` - Number of adjournments
+- `hearings_count` - Total hearings
+- `case_type` - Type of case (Civil, Criminal, etc.)
+- `court` - Court name
+- `days_since_last_hearing` - Days since last hearing
+- `judge_workload` - Estimated judge workload
+- `adjournment_rate` - Calculated adjournment rate
+- `hearing_frequency` - Hearings per month
+
+### Dataset Output
+
+Pipeline produces `data/processed/dataset.csv`:
+
+```csv
+case_age_days,adjournment_history,hearings_count,case_type,court,...
+420,3,8,Civil,Delhi High Court,...
+```
+
+## �📈 Future Enhancements
+
+- [x] Integration with real Indian High Court datasets
+- [x] Automated data pipeline
+- [x] Dataset versioning and management
 - [ ] NLP-based case text analysis using sentence-transformers
 - [ ] Deep learning models (PyTorch)
 - [ ] Model versioning and A/B testing
 - [ ] Real-time model monitoring
-- [ ] Automated retraining pipeline
 - [ ] Feature importance visualization
 - [ ] Explainable AI (SHAP values)
+- [ ] Distributed processing for large-scale datasets
 
 ## 🔒 Security
 
