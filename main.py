@@ -55,6 +55,10 @@ app.add_middleware(
 # Include API routes
 app.include_router(router, prefix="/api", tags=["predictions"])
 
+# Include search routes
+from app.search.api.search_routes import router as search_router
+app.include_router(search_router, prefix="/api", tags=["search"])
+
 # Root endpoint
 @app.get("/")
 async def root():
