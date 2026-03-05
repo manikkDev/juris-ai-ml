@@ -10,3 +10,9 @@ data/raw/*
 data/processed/*
 models/*
 !models/.gitkeep
+requirements.txt
+app/
+docs/
+examples/
+IMPLEMENTATION_SUMMARY.md
+Dockerfile

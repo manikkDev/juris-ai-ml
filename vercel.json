@@ -2,17 +2,22 @@
   "version": 2,
   "builds": [
     {
-      "src": "main.py",
+      "src": "main-vercel.py",
       "use": "@vercel/python"
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "main.py"
+      "dest": "main-vercel.py"
     }
   ],
   "env": {
     "PYTHON_VERSION": "3.9"
+  },
+  "functions": {
+    "main-vercel.py": {
+      "maxDuration": 10
+    }
   }
 }
